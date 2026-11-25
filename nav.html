@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Open in Shortcuts</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 22vh 24px 32px;
+      text-align: center;
+      color: #111;
+      background: #fff;
+    }
+    p { color: #555; line-height: 1.45; }
+    p.err { color: #b00020; }
+    a.btn {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 14px 22px;
+      border-radius: 12px;
+      background: #007aff;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <p id="status">Opening Shortcuts…</p>
+  <p id="fallback"><a class="btn" id="open" href="#">Open in Shortcuts</a></p>
+  <noscript>
+    <p class="err">JavaScript is required to open Shortcuts. Enable it and reload this page.</p>
+  </noscript>
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var lat = params.get("lat");
+      var lng = params.get("lng") || params.get("lon") || params.get("long");
+      var name = params.get("name") || "Set car navigation or url";
+      var status = document.getElementById("status");
+      var btn = document.getElementById("open");
+
+      function isCoord(value) {
+        return value != null && value !== "" && Number.isFinite(Number(value));
+      }
+
+      if (!isCoord(lat) || !isCoord(lng)) {
+        status.className = "err";
+        status.textContent = "This link is missing a valid location.";
+        document.getElementById("fallback").style.display = "none";
+        return;
+      }
+
+      var text = lat + "," + lng;
+      var url = "shortcuts://run-shortcut?name=" + encodeURIComponent(name)
+        + "&input=text&text=" + encodeURIComponent(text);
+
+      btn.href = url;
+      status.textContent = "If Shortcuts did not open, tap the button below.";
+
+      var meta = document.createElement("meta");
+      meta.httpEquiv = "refresh";
+      meta.content = "0;url=" + url;
+      document.head.appendChild(meta);
+
+      window.location.replace(url);
+    })();
+  </script>
+</body>
+</html>
